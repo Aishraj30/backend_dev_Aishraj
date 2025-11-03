@@ -32,8 +32,9 @@ class MongoUserRepo extends UserRepo {
 
   async updateuser(id, userdata) {
     try {
-      return await User.findByIdAndUpdate(id, userdata, { new: true });
-    } catch (error) {
+  return await User.findByIdAndUpdate(id, userdata, { new: true, runValidators: true });
+}
+ catch (error) {
       throw new AppError('Failed to update user', 500, error);
     }
   }

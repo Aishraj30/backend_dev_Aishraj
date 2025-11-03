@@ -1,22 +1,16 @@
-const express = require('express')
-const {
-    logincontroller,
-    registercontroller
-} = require('../controller/user.controller')
-
-const controller = require('../controller/user.controller')
-const authMiddleware = require('../middleware/authuser')
-const roleMiddleware = require('../middleware/role')
-const userController = require('../controller/user.controller')
-
-const router = express.Router()
-
-router.post('/register' , controller.register )
-router.post('/login' ,  controller.login )
+const express = require('express');
+const router = express.Router();
+const userController = require('../controller/user.controller');
+const authMiddleware = require('../middleware/authuser');
+const updateUser = require('../controller/update.controller');
 
 
-router.get('/:id', authMiddleware ,   controller.getuser );
-router.put('/:id',  roleMiddleware(['admin' , 'client' , 'candidate'])  ,  userController.updateUser );
+// Public routes
+router.post('/register', userController.register);
+router.post('/login', userController.login);
 
+// Protected routes (require authentication)
+router.get('/:id', authMiddleware, userController.getuser);
+router.put('/:id', authMiddleware , updateUser    );
 
-module.exports = router 
+module.exports = router;

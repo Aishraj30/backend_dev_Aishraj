@@ -138,20 +138,27 @@ class userService {
         };
     }
 
-    async updateuser(id, userdata) {
-        const error = registerschema.validate(userdata);
-        if (error) throw new AppError(error.message, 400);
+  async updateuser(id, userdata) {
+  try {
+  
+    const { error } = registerschema.validate(userdata);
+    if (error) throw new AppError(error.message, 400);
 
-        const user = await this.mainrepo.updateuser(id, userdata);
-        if (!user) throw new AppError('user not found', 404);
+   
+const user = await this.mainrepo.updateuser(id, userdata);
+    if (!user) throw new AppError('user not found', 404);
 
-        return {
-            id: user._id,
-            email: user.email,
-            role: user.role,
-            fullname: user.fullname
-        };
-    }
+  
+    return  {
+      id: user._id,
+      email: user.email,
+      role: user.role,
+      fullname: user.fullname
+    };
+  } catch (err) {
+    console.error("Update User Error:", err.message);
+    throw new AppError('Failed to update user', 500);
+  }
 }
-
+}
 module.exports = new userService(userRepo);
