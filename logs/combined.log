@@ -1220,3 +1220,15 @@
 {"level":"info","message":"Redis DB connected successfully","timestamp":"2025-11-03T08:59:36.343Z"}
 {"level":"info","message":"Redis connection established and ready to use","timestamp":"2025-11-03T08:59:36.392Z"}
 {"level":"info","message":"Both DB connnected ","timestamp":"2025-11-03T08:59:36.393Z"}
+{"level":"info","message":"Server is running on http://localhost:3000","timestamp":"2025-11-03T09:02:28.141Z"}
+{"level":"info","message":"Redis DB connected successfully","timestamp":"2025-11-03T09:02:28.371Z"}
+{"level":"info","message":"Redis connection established and ready to use","timestamp":"2025-11-03T09:02:28.431Z"}
+{"level":"info","message":"Both DB connnected ","timestamp":"2025-11-03T09:02:28.432Z"}
+{"level":"info","message":"Server is running on http://localhost:3000","timestamp":"2025-11-03T09:08:30.617Z"}
+{"level":"info","message":"Redis DB connected successfully","timestamp":"2025-11-03T09:08:30.903Z"}
+{"level":"info","message":"Redis connection established and ready to use","timestamp":"2025-11-03T09:08:30.969Z"}
+{"level":"info","message":"Both DB connnected ","timestamp":"2025-11-03T09:08:30.970Z"}
+{"level":"info","message":"Server is running on http://localhost:3000","timestamp":"2025-11-03T09:08:33.532Z"}
+{"level":"info","message":"Redis DB connected successfully","timestamp":"2025-11-03T09:08:33.673Z"}
+{"level":"info","message":"Redis connection established and ready to use","timestamp":"2025-11-03T09:08:33.757Z"}
+{"level":"info","message":"Both DB connnected ","timestamp":"2025-11-03T09:08:33.758Z"}
