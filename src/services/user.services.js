@@ -1,13 +1,11 @@
+// ...existing code...
 const joi = require('joi');
-
 const userRepo = require('../repositories/implementation/mongouserRepo');
-const MongoUserRepo = require('../repositories/implementation/mongouserRepo')
-const jwt  = require('jsonwebtoken');
-const AppError = require('../utils/error');
 const RedisRepo = require('../repositories/implementation/redisRepo');
+const jwt = require('jsonwebtoken');
+const AppError = require('../utils/error');
+
 const { JWT_SECRET_KEY } = process.env;
-
-
 
 const registerschema = joi.object({
     fullname: joi.string().min(2).required(),
@@ -24,27 +22,21 @@ const loginschema = joi.object({
 class userService {
 
     constructor(mainrepo, cacheRepo) {
-        this.mainrepo = MongoUserRepo;
-        this.cacheRepo = new RedisRepo;
+        // use injected repositories (fallback to defaults)
+        this.mainrepo = mainrepo || userRepo;
+        this.cacheRepo = cacheRepo || new RedisRepo();
     }
 
     async register(userdata) {
         const { error } = registerschema.validate(userdata);
         if (error) throw new AppError(error.message, 400);
 
-
-
-
         const cacheKey = `user:email:${userdata.email}`;
         const existCache = await this.cacheRepo.get(cacheKey);
         if (existCache) throw new AppError("token not found", 404);
 
-
         const exist = await this.mainrepo.findByEmail(userdata.email);
-    if(exist){ throw new AppError('email already exist' , 409)}
-
-
-      
+        if (exist) throw new AppError('email already exist', 409);
 
         const user = await this.mainrepo.create(userdata);
 
@@ -78,35 +70,32 @@ class userService {
         const { error } = loginschema.validate({ email, password });
         if (error) throw new AppError(error.message, 400);
 
-        const cacheKey = `user:email:${email}`;
-        let loguser = await this.cacheRepo.get(cacheKey);
-        if (!loguser) {
-            loguser = await this.mainrepo.findByEmail(email);
-            if (!loguser) throw new AppError('user not found', 401);
-        }
+        // declare user with const to avoid reference errors
+        const user = await this.mainrepo.findByEmail(email);
+        if (!user) throw new AppError('user not found', 401);
 
-        const match = await loguser.comparepassword(password);
+        const match = await user.comparepassword(password);
         if (!match) throw new AppError("invalid credential", 401);
 
-        await this.cacheRepo.set(`user:id:${loguser._id}`, {
-            id: loguser._id,
-            email: loguser.email,
-            role: loguser.role,
-            name: loguser.name,
+        await this.cacheRepo.set(`user:id:${user._id}`, {
+            id: user._id,
+            email: user.email,
+            role: user.role,
+            name: user.name,
         }, 3600);
 
         const token = jwt.sign(
-            { id: loguser._id, role: loguser.role },
+            { id: user._id, role: user.role },
             JWT_SECRET_KEY || process.env.JWT_SECRET_KEY,
             { expiresIn: '1h' }
         );
 
         return {
             user: {
-                id: loguser._id,
-                email: loguser.email,
-                role: loguser.role,
-                name: loguser.name
+                id: user._id,
+                email: user.email,
+                role: user.role,
+                name: user.name
             },
             token
         };
@@ -127,38 +116,44 @@ class userService {
                 name: user.name
             }, 3600);
 
-            getuser = user;
+            getuser = {
+                _id: user._id,
+                fullname: user.fullname || user.name,
+                role: user.role,
+                email: user.email
+            };
         }
 
+        // support cached object shape (may have id instead of _id)
+        const idField = getuser._id || getuser.id;
+
         return {
-            id: getuser._id,
+            id: idField,
             fullname: getuser.fullname || getuser.name,
             role: getuser.role,
             email: getuser.email
         };
     }
 
-  async updateuser(id, userdata) {
-  try {
-  
-    const { error } = registerschema.validate(userdata);
-    if (error) throw new AppError(error.message, 400);
+    async updateuser(id, userdata) {
+        try {
+            const { error } = registerschema.validate(userdata);
+            if (error) throw new AppError(error.message, 400);
 
-   
-const user = await this.mainrepo.updateuser(id, userdata);
-    if (!user) throw new AppError('user not found', 404);
+            const user = await this.mainrepo.updateuser(id, userdata);
+            if (!user) throw new AppError('user not found', 404);
 
-  
-    return  {
-      id: user._id,
-      email: user.email,
-      role: user.role,
-      fullname: user.fullname
-    };
-  } catch (err) {
-    console.error("Update User Error:", err.message);
-    throw new AppError('Failed to update user', 500);
-  }
+            return {
+                id: user._id,
+                email: user.email,
+                role: user.role,
+                fullname: user.fullname
+            };
+        } catch (err) {
+            console.error("Update User Error:", err.message);
+            throw new AppError('Failed to update user', 500);
+        }
+    }
 }
-}
-module.exports = new userService(userRepo);
+
+module.exports = new userService(userRepo, new RedisRepo());

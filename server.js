@@ -2,7 +2,7 @@ const express = require('express')
 require('dotenv').config();
 const {createclient} = require('redis')
 const useroutes = require('./src/routes/user.routes')
-const connectMongoDB  = require('../backend/src/config/db')
+const connectMongoDB  = require('./src/config/db')
 const redisInstance = require('./src/config/redis')
 const errorHandler = require('./src/middleware/errorHandler');
 const cookieParser = require('cookie-parser');
