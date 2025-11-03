@@ -39,5 +39,5 @@ class MongoUserRepo extends UserRepo {
   }
 }
 
-module.exports = MongoUserRepo;
+module.exports = new MongoUserRepo;
 
